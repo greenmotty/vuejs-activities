@@ -3,7 +3,6 @@
     <span class="activity">
       <div class="activity-type">
           <div class="activity-image">
-            <img v-bind:src="`..${value.topic_data.icon_path}`" alt="No"/>
             <img src="../assets/topics/dna.png" alt="No" width="50" height="50"/>
           </div>
           <div class="activity-description">
