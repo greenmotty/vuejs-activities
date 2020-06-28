@@ -1,55 +1,84 @@
 <template>
-  <div class="main-wrapper">
-    <view-work-modal
-      :showModal="showModal"
-      :activity="currentActivity"
-      @closeModal="closeModal"></view-work-modal>
-    <span class="title">Timeline</span>
-    <vue-autosuggest
-      :suggestions="[{data: options}]"
-      :input-props="this.inputProps"
-      :on-selected="search"
-      @selected="search"
-      @click="search"
-    >
-      <template slot-scope="{suggestion}">
-        <span class="my-suggestion-item">{{suggestion.item}}</span>
+  <span>
+    <div class="main-wrapper">
+      <span class="title">Timeline</span>
+      <vue-autosuggest
+        :suggestions="[{data: options}]"
+        :input-props="this.inputProps"
+        :on-selected="search"
+        @selected="search"
+        @click="search"
+      >
+        <template slot-scope="{suggestion}">
+          <span class="my-suggestion-item">{{suggestion.item}}</span>
+        </template>
+      </vue-autosuggest>
+      <span class="filter-input-icon" @click="search">
+        <img src="../assets/search.svg" width="16" height="16" border="0"/>
+      </span>
+      <span class="sub-title">Filter by:</span>
+      <div class="filter-by-wrapper">
+        <div class="single-filter"
+             @click="setFilter(key)"
+             v-for="(val, key) in filters" :key="key">
+          <img v-if="key === currentFilter" class="selected" src="../assets/v.svg"/>
+          <span>{{val | startCase}}</span>
+        </div>
+      </div>
+      <div class="activity-wrapper" v-for="(activities, month) in cloneActivity" :key="month">
+        <span class="month">{{month}}</span>
+        <span class="vertical-line"></span>
+        <div v-for="activity in activities" :key="activity.id">
+          <activity :value="activity"
+                    @openModal="openModal($event)"></activity>
+        </div>
+      </div>
+      <span class="load-more" title="Load more activities" @click="loadMore()">
+        <img src="../assets/arrow-down.svg" width="24" height="24" class="close-img"/>
+        &nbsp;Load more
+      </span>
+    </div>
+    <b-modal v-model="showModal" hide-footer hide-header>
+      <template v-slot:default="{ hide }">
+        <div class="modal-wrapper">
+          <div class="custom-header">
+            <button @click="closeModal()" class="close-btn">
+              <img src="../assets/x.svg" class="close-img"/>
+            </button>
+          </div>
+          <div class="custom-body-center">
+            <div class="icon">
+              <img src="../assets/topics/adalovelace.png" width="80" height="80"/>
+            </div>
+            <div class="name">
+              <span>{{currentActivity.topic_data.name | capitalize}}</span>
+            </div>
+            <div class="time">
+                <span>{{currentActivity.d_created | formatDate}}&middot;
+              {{currentActivity.d_created | formatTime}}</span>
+            </div>
+          </div>
+          <div class="custom-body-left">
+            <div class="comment">
+              <span>{{currentActivity.comment}}</span>
+            </div>
+            <div class="score" v-if="settings[currentActivity.resource_type].score">
+              <span>Score {{currentActivity.score}}/10</span>
+            </div>
+          </div>
+        </div>
       </template>
-    </vue-autosuggest>
-    <span class="filter-input-icon" @click="search">
-      <img src="../assets/search.svg" width="16" height="16" border="0"/>
-    </span>
-    <span class="sub-title">Filter by:</span>
-    <div class="filter-by-wrapper">
-      <div class="single-filter"
-           @click="setFilter(key)"
-           v-for="(val, key) in filters" :key="key">
-        <img v-if="key === currentFilter" class="selected" src="../assets/v.svg"/>
-        <span>{{val | startCase}}</span>
-      </div>
-    </div>
-    <div class="activity-wrapper" v-for="(activities, month) in cloneActivity" :key="month">
-      <span class="month">{{month}}</span>
-      <span class="vertical-line"></span>
-      <div v-for="activity in activities" :key="activity.id">
-        <activity :value="activity" @openModal="openModal($event)"></activity>
-      </div>
-    </div>
-    <span class="load-more" title="Load more activities" @click="loadMore()">
-      <img src="../assets/arrow-down.svg" width="24" height="24" class="close-img"/>
-      &nbsp;Load more
-    </span>
-  </div>
+    </b-modal>
+  </span>
 </template>
 <script>
 import lodash from 'lodash';
 import axios from 'axios';
 import Activity from './Activity.vue';
-import viewWorkModal from './view-work-modal.vue';
 
 export default {
   name: 'Activities',
-  components: { Activity, viewWorkModal },
+  components: { Activity },
   data() {
     return {
       options: [],
@@ -254,6 +283,58 @@ export default {
       cursor: pointer;
       text-align: center;
       margin: 10px;
+    }
+  }
+
+  .modal-wrapper {
+    padding: 10px;
+
+    .custom-header {
+      position: relative;
+      min-height: 50px;
+
+      .close-btn {
+        border: none;
+        background: none;
+        position: absolute;
+        right: 0px;
+
+        .close-img {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    }
+
+    .custom-body-center {
+      $height: 40px;
+      @include display-flex(column, center, center);
+
+      .name {
+        font-size: 20px;
+        font-weight: bold;
+        height: $height;
+      }
+
+      .time {
+        height: $height;
+      }
+    }
+
+    .custom-body-left {
+      @include display-flex(column, space-between, flex-start);
+      height: 150px;
+
+      .comment {
+        text-align: left;
+        font-size: 26px;
+      }
+
+      .score {
+        color: $linkColor;
+        font-size: 20px;
+        font-weight: bold;
+      }
     }
   }
 </style>

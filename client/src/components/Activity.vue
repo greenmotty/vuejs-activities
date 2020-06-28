@@ -21,7 +21,7 @@
       </div>
       <div class="activity-zoom">
         <span class="zoom-data" v-if="settings[value.resource_type].zoom"
-              @click="viewWorkModal(value)">👁 View work</span>
+              @click="openModal(value)">👁 View work</span>
       </div>
     </span>
   </span>
@@ -31,7 +31,7 @@ export default {
   name: 'activity',
   props: ['value'],
   methods: {
-    viewWorkModal(activity) {
+    openModal(activity) {
       this.$emit('openModal', activity);
     },
   },
