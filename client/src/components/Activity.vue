@@ -2,19 +2,19 @@
   <span>
     <span class="activity">
       <div class="activity-type">
-            <div class="activity-image">
-              <img v-bind:src="`..${value.topic_data.icon_path}`" alt="No"/>
-              <img src="../assets/topics/dna.png" alt="No" width="50" height="50"/>
+          <div class="activity-image">
+            <img v-bind:src="`..${value.topic_data.icon_path}`" alt="No"/>
+            <img src="../assets/topics/dna.png" alt="No" width="50" height="50"/>
+          </div>
+          <div class="activity-description">
+            <div class="activity-name">
+              {{value.topic_data.name | capitalize}}
             </div>
-            <div class="activity-description">
-              <div class="activity-name">
-                {{value.topic_data.name | capitalize}}
-              </div>
-              <div class="activity-date">
-                {{value.d_created | formatDate}}&middot;{{value.d_created | formatTime}}
-              </div>
+            <div class="activity-date">
+              {{value.d_created | formatDate}}&middot;{{value.d_created | formatTime}}
             </div>
           </div>
+        </div>
       <div class="activity-score">
           <span class="score" v-if="settings[value.resource_type].score">Score&nbsp;&nbsp;
             <span class="score-data">{{value.score}}/10</span>
@@ -54,10 +54,13 @@ export default {
     display: flex;
     flex-direction: row;
     height: $height;
-    margin: $space 20px $space 0;
+    margin: 20px 0;
     border-radius: 5px;
     border: 1px solid gray;
     padding: 2px;
+    z-index: 2;
+    background: white;
+    position: relative;
 
   .activity-type {
     padding: 25px;

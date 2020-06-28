@@ -226,6 +226,17 @@ export default {
       font-size: 14px;
     }
     .activity-wrapper{
+      position: relative;
+      &::before{
+        content: "";
+        width: 1px;
+        background: gray;
+        height: 100%;
+        position: absolute;
+        left: 5%;
+        top: 0;
+        z-index: 1;
+      }
       .month {
         border-radius: 20px;
         border: 1px solid antiquewhite;
@@ -233,6 +244,8 @@ export default {
         margin: 20px 0 20px 0;
         padding: 3px 15px;
         background: antiquewhite;
+        z-index: 2;
+        position: relative;
       }
     }
     .load-more{
