@@ -1,0 +1,246 @@
+<template>
+  <div class="main-wrapper">
+    <view-work-modal
+      :showModal="showModal"
+      :activity="currentActivity"
+      @closeModal="closeModal"></view-work-modal>
+    <span class="title">Timeline</span>
+    <vue-autosuggest
+      :suggestions="[{data: options}]"
+      :input-props="this.inputProps"
+      :on-selected="search"
+      @selected="search"
+      @click="search"
+    >
+      <template slot-scope="{suggestion}">
+        <span class="my-suggestion-item">{{suggestion.item}}</span>
+      </template>
+    </vue-autosuggest>
+    <span class="filter-input-icon" @click="search">
+      <img src="../assets/search.svg" width="16" height="16" border="0"/>
+    </span>
+    <span class="sub-title">Filter by:</span>
+    <div class="filter-by-wrapper">
+      <div class="single-filter"
+           @click="setFilter(key)"
+           v-for="(val, key) in filters" :key="key">
+        <img v-if="key === currentFilter" class="selected" src="../assets/v.svg"/>
+        <span>{{val | startCase}}</span>
+      </div>
+    </div>
+    <div class="activity-wrapper" v-for="(activities, month) in cloneActivity" :key="month">
+      <span class="month">{{month}}</span>
+      <span class="vertical-line"></span>
+      <div v-for="activity in activities" :key="activity.id">
+        <activity :value="activity" @openModal="openModal($event)"></activity>
+      </div>
+    </div>
+    <span class="load-more" title="Load more activities" @click="loadMore()">
+      <img src="../assets/arrow-down.svg" width="24" height="24" class="close-img"/>
+      &nbsp;Load more
+    </span>
+  </div>
+</template>
+<script>
+import lodash from 'lodash';
+import axios from 'axios';
+import Activity from './Activity.vue';
+import viewWorkModal from './view-work-modal.vue';
+
+export default {
+  name: 'Activities',
+  components: { Activity, viewWorkModal },
+  data() {
+    return {
+      options: [],
+      inputProps: {
+        id: 'autosuggest__input',
+        onInputChange: this.onInputChange,
+        placeholder: 'Search Timeline',
+      },
+      allData: [],
+      cloneActivity: [],
+      settings: [],
+      showModal: false,
+      currentActivity: null,
+      currentFilter: 'All',
+      filters: {},
+      inputFilter: null,
+      page: 0,
+      size: 10,
+    };
+  },
+  created() {
+    axios
+      .get('http://localhost:3000/activities/v1')
+      .then((response) => {
+        const array = lodash.get(response, 'data', []);
+        this.allData = array;
+        this.buildActivities(this.allData);
+      });
+
+    // Get settings from store
+    this.settings = this.$store.getters.getSettings;
+  },
+  methods: {
+    openModal(event) {
+      this.currentActivity = event;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    loadMore() {
+      this.page += 1;
+      this.buildActivities(this.allData);
+    },
+    buildActivities(array) {
+      let result = this.getCurrentPage(array);
+      result = this.orderBy(result);
+      this.filters = this.filterBy(result);
+      this.options = this.buildOptions(result);
+      this.activities = this.groupBy(result);
+      this.cloneActivity = Object.assign({}, this.activities);
+    },
+    getPagination() {
+      const start = 0;
+      const end = this.page * this.size + this.size;
+      return { start, end };
+    },
+    getCurrentPage(activities) {
+      let array = [];
+      if (activities) {
+        const { start, end } = this.getPagination();
+        array = lodash.slice(activities, start, end);
+      }
+      return array;
+    },
+    search(option) {
+      const item = lodash.get(option, 'item', null);
+      let result = {};
+      if (item) {
+        lodash.forEach(this.activities, (val, key) => {
+          result[key] = lodash.filter(val, (activity) => {
+            const name = lodash.get(activity, 'topic_data.name', '');
+            return name.toLowerCase().indexOf(item.toLowerCase()) > -1;
+          });
+        });
+      } else {
+        result = Object.assign({}, this.activities);
+      }
+      this.cloneActivity = result;
+    },
+    orderBy(array) {
+      return array.sort((a, b) => b.d_created.valueOf() - a.d_created.valueOf());
+    },
+    groupBy(array) {
+      const ordered = {};
+      lodash.forEach(array, (item) => {
+        const date = new Date(item.d_created * 1000);
+        const month = date.toLocaleString('default', { month: 'long' });
+        if (!ordered[month]) {
+          ordered[month] = [item];
+        } else {
+          ordered[month].push(item);
+        }
+      });
+      return ordered;
+    },
+    setFilter(filter) {
+      this.currentFilter = filter;
+      let result = {};
+      if (filter === 'All') {
+        result = Object.assign({}, this.activities);
+      } else {
+        lodash.forEach(this.activities, (val, key) => {
+          result[key] = lodash.filter(val, activity => activity.resource_type === filter);
+        });
+      }
+      this.cloneActivity = result;
+    },
+    filterBy(array) {
+      // Default filter
+      const filters = {
+        All: 'All work',
+      };
+      lodash.forEach(array, (activity) => {
+        filters[activity.resource_type] = activity.resource_type;
+      });
+      return filters;
+    },
+    buildOptions(array) {
+      // Default filter
+      const result = lodash.map(array, activity => lodash.startCase(activity.topic_data.name));
+      return lodash.uniq(result);
+    },
+  },
+};
+</script>
+<style scoped lang="scss">
+  @import "../styles/common";
+  .main-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .filter-by-wrapper{
+      @include display-flex(row, flex-start, flex-start);
+      .single-filter{
+        margin: 5px 5px 10px 0;
+        padding: 5px 10px;
+        color: $filterColor;
+        width: auto;
+        height: 40px;
+        font-weight: bold;
+        border-radius: 5px;
+        border: 1px solid $filterColor;
+
+        &:hover{
+          cursor: pointer;
+          color: white;
+          background: $filterColor;
+        }
+
+        .selected{
+          margin: 2px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+    .filter-input-icon{
+      background: $filterColor;
+      width: 31px;
+      height: 30px;
+      left: 269px;
+      top: -40px;
+      position: relative;
+      text-align: center;
+      cursor: pointer;
+    }
+    .title{
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .sub-title{
+      font-size: 14px;
+    }
+    .activity-wrapper{
+      .month {
+        border-radius: 20px;
+        border: 1px solid antiquewhite;
+        color: black;
+        margin: 20px 0 20px 0;
+        padding: 3px 15px;
+        background: antiquewhite;
+      }
+    }
+    .load-more{
+      color: $filterColor;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      margin: 10px;
+    }
+  }
+</style>
