@@ -75,7 +75,7 @@ export default {
 
   .activity-description{
   @include display-flex(column, flex-start, flex-start);
-    margin: 0px 10px;
+    margin: 0 10px;
     height: 60px;
     text-align: left;
   .activity-name{
