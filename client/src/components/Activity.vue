@@ -3,7 +3,7 @@
     <span class="activity">
       <div class="activity-type">
           <div class="activity-image">
-            <img src="../assets/topics/dna.png" alt="No" width="50" height="50"/>
+            <img :src="getImage(value)" alt="No" width="50" height="50"/>
           </div>
           <div class="activity-description">
             <div class="activity-name">
@@ -27,6 +27,8 @@
   </span>
 </template>
 <script>
+import shared from '../shared/shared';
+
 export default {
   name: 'activity',
   props: ['value'],
@@ -38,17 +40,22 @@ export default {
   data() {
     return {
       settings: [],
+      getImage: null,
     };
   },
   created() {
     // Get settings from store
     this.settings = this.$store.getters.getSettings;
+
+    // Get method from shared
+    this.getImage = shared.getImage;
   },
 };
 </script>
 
 <style scoped lang="scss">
   @import "../styles/common";
+
   .activity {
     display: flex;
     flex-direction: row;
@@ -61,60 +68,63 @@ export default {
     background: white;
     position: relative;
 
-  .activity-type {
-    padding: 25px;
-    width: calc(100% - #{$scoreWidth} - #{$zoomWidth});
-    display: flex;
-    align-items: center;
+    .activity-type {
+      padding: 25px;
+      width: calc(100% - #{$scoreWidth} - #{$zoomWidth});
+      display: flex;
+      align-items: center;
 
-  .activity-image{
-    width: 50px;
-    height: 50px;
-    border: 1px solid black;
-  }
+      .activity-image {
+        width: 50px;
+        height: 50px;
+        border: 1px solid black;
+      }
 
-  .activity-description{
-  @include display-flex(column, flex-start, flex-start);
-    margin: 0 10px;
-    height: 60px;
-    text-align: left;
-  .activity-name{
-    font-size: 18px;
-    font-weight: bold;
-  }
-  .activity-date{
-    font-size: 12px;
-  }
-  }
-  }
+      .activity-description {
+        @include display-flex(column, flex-start, flex-start);
+        margin: 0 10px;
+        height: 60px;
+        text-align: left;
 
-  .activity-score {
-    width: 120px;
-    display: flex;
-    align-items: center;
-    color: $linkColor;
-    font-size: $fontSize;
+        .activity-name {
+          font-size: 18px;
+          font-weight: bold;
+        }
 
-  .score{
-    line-height: $fontSize;
-    padding-right: 10px;
-  }
-  .score-data{
-    font-weight: bold;
-  }
-  }
+        .activity-date {
+          font-size: 12px;
+        }
+      }
+    }
 
-  .activity-zoom {
-    width: 150px;
-    display: flex;
-    align-items: center;
-    color: $linkColor;
-    font-size: $fontSize;
+    .activity-score {
+      width: 120px;
+      display: flex;
+      align-items: center;
+      color: $linkColor;
+      font-size: $fontSize;
 
-  .zoom-data{
-    font-weight: bold;
-    cursor: pointer;
-  }
-  }
+      .score {
+        line-height: $fontSize;
+        padding-right: 10px;
+      }
+
+      .score-data {
+        font-weight: bold;
+      }
+    }
+
+    .activity-zoom {
+      width: 150px;
+      display: flex;
+      align-items: center;
+      color: $linkColor;
+      font-size: $fontSize;
+
+      .zoom-data {
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
   }
 </style>

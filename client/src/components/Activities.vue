@@ -48,7 +48,7 @@
           </div>
           <div class="custom-body-center">
             <div class="icon">
-              <img src="../assets/topics/adalovelace.png" width="80" height="80"/>
+              <img :src="getImage(currentActivity)" alt="No" width="80" height="80"/>
             </div>
             <div class="name">
               <span>{{currentActivity.topic_data.name | capitalize}}</span>
@@ -75,6 +75,7 @@
 import lodash from 'lodash';
 import axios from 'axios';
 import Activity from './Activity.vue';
+import shared from '../shared/shared';
 
 export default {
   name: 'Activities',
@@ -97,6 +98,7 @@ export default {
       inputFilter: null,
       page: 0,
       size: 10,
+      getImage: null,
     };
   },
   created() {
@@ -110,8 +112,19 @@ export default {
 
     // Get settings from store
     this.settings = this.$store.getters.getSettings;
+
+    // Get method from shared
+    this.getImage = shared.getImage;
   },
   methods: {
+    getImgUrl(activity) {
+      const iconPath = lodash.get(activity, 'topic_data.icon_path', null);
+      if (!iconPath) {
+        return '';
+      }
+      const images = require.context('../assets/', false, /\.svg$/);
+      return images(iconPath);
+    },
     openModal(event) {
       this.currentActivity = event;
       this.showModal = true;
@@ -262,7 +275,7 @@ export default {
         background: gray;
         height: calc(100% - 16px);
         position: absolute;
-        left: 5%;
+        left: 44px;
         top: 0;
         z-index: 1;
       }
