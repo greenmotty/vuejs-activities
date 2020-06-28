@@ -53,7 +53,7 @@ export default {
     display: flex;
     flex-direction: row;
     height: $height;
-    margin: 20px 0;
+    margin: 16px 10px 16px 2px;
     border-radius: 5px;
     border: 1px solid gray;
     padding: 2px;

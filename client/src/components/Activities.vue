@@ -260,7 +260,7 @@ export default {
         content: "";
         width: 1px;
         background: gray;
-        height: 100%;
+        height: calc(100% - 16px);
         position: absolute;
         left: 5%;
         top: 0;
