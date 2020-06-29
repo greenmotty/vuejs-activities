@@ -30,45 +30,19 @@
         <span class="vertical-line"></span>
         <div v-for="activity in activities" :key="activity.id">
           <activity :value="activity"
-                    @openModal="openModal($event)"></activity>
+                    @openModal="toggleModal($event)"></activity>
         </div>
       </div>
+
+      <div v-show="showModal">
+        <router-view></router-view>
+      </div>
+
       <span class="load-more" title="Load more activities" @click="loadMore()">
         <img src="../assets/arrow-down.svg" width="24" height="24" class="close-img"/>
         &nbsp;Load more
       </span>
     </div>
-    <b-modal v-model="showModal" hide-footer hide-header>
-      <template v-slot:default="{ hide }">
-        <div class="modal-wrapper">
-          <div class="custom-header">
-            <button @click="closeModal()" class="close-btn">
-              <img src="../assets/x.svg" class="close-img"/>
-            </button>
-          </div>
-          <div class="custom-body-center">
-            <div class="icon">
-              <img :src="getImage(currentActivity)" alt="No" width="80" height="80"/>
-            </div>
-            <div class="name">
-              <span>{{currentActivity.topic_data.name | capitalize}}</span>
-            </div>
-            <div class="time">
-                <span>{{currentActivity.d_created | formatDate}}&middot;
-              {{currentActivity.d_created | formatTime}}</span>
-            </div>
-          </div>
-          <div class="custom-body-left">
-            <div class="comment">
-              <span>{{currentActivity.comment}}</span>
-            </div>
-            <div class="score" v-if="settings[currentActivity.resource_type].score">
-              <span>Score {{currentActivity.score}}/10</span>
-            </div>
-          </div>
-        </div>
-      </template>
-    </b-modal>
   </span>
 </template>
 <script>
@@ -76,6 +50,7 @@ import lodash from 'lodash';
 import axios from 'axios';
 import Activity from './Activity.vue';
 import shared from '../shared/shared';
+
 
 export default {
   name: 'Activities',
@@ -98,7 +73,6 @@ export default {
       inputFilter: null,
       page: 0,
       size: 10,
-      getImage: null,
     };
   },
   created() {
@@ -112,25 +86,24 @@ export default {
 
     // Get settings from store
     this.settings = this.$store.getters.getSettings;
-
-    // Get method from shared
-    this.getImage = shared.getImage;
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(newVal) {
+        this.showModal = newVal.meta && newVal.meta.showModal;
+      },
+    },
   },
   methods: {
-    getImgUrl(activity) {
-      const iconPath = lodash.get(activity, 'topic_data.icon_path', null);
-      if (!iconPath) {
-        return '';
-      }
-      const images = require.context('../assets/', false, /\.svg$/);
-      return images(iconPath);
+    getImage(activity) {
+      return shared.getImage(activity);
     },
-    openModal(event) {
-      this.currentActivity = event;
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
+    toggleModal(activity) {
+      this.showModal = !this.showModal;
+      // named route
+      this.$router.push({ path: `/home/${activity.id}` });
+      // this.currentActivity = activity;
     },
     loadMore() {
       this.page += 1;
@@ -138,10 +111,10 @@ export default {
     },
     buildActivities(array) {
       let result = this.getCurrentPage(array);
-      result = this.orderBy(result);
+      result = this.orderByDate(result);
       this.filters = this.filterBy(result);
       this.options = this.buildOptions(result);
-      this.activities = this.groupBy(result);
+      this.activities = this.groupByMonth(result);
       this.cloneActivity = Object.assign({}, this.activities);
     },
     getPagination() {
@@ -158,8 +131,8 @@ export default {
       return array;
     },
     search(option) {
-      const item = lodash.get(option, 'item', null);
       let result = {};
+      const item = lodash.get(option, 'item', null);
       if (item) {
         lodash.forEach(this.activities, (val, key) => {
           result[key] = lodash.filter(val, (activity) => {
@@ -172,10 +145,10 @@ export default {
       }
       this.cloneActivity = result;
     },
-    orderBy(array) {
+    orderByDate(array) {
       return array.sort((a, b) => b.d_created.valueOf() - a.d_created.valueOf());
     },
-    groupBy(array) {
+    groupByMonth(array) {
       const ordered = {};
       lodash.forEach(array, (item) => {
         const date = new Date(item.d_created * 1000);
@@ -296,58 +269,6 @@ export default {
       cursor: pointer;
       text-align: center;
       margin: 10px;
-    }
-  }
-
-  .modal-wrapper {
-    padding: 10px;
-
-    .custom-header {
-      position: relative;
-      min-height: 50px;
-
-      .close-btn {
-        border: none;
-        background: none;
-        position: absolute;
-        right: 0px;
-
-        .close-img {
-          width: 30px;
-          height: 30px;
-        }
-      }
-    }
-
-    .custom-body-center {
-      $height: 40px;
-      @include display-flex(column, center, center);
-
-      .name {
-        font-size: 20px;
-        font-weight: bold;
-        height: $height;
-      }
-
-      .time {
-        height: $height;
-      }
-    }
-
-    .custom-body-left {
-      @include display-flex(column, space-between, flex-start);
-      height: 150px;
-
-      .comment {
-        text-align: left;
-        font-size: 26px;
-      }
-
-      .score {
-        color: $linkColor;
-        font-size: 20px;
-        font-weight: bold;
-      }
     }
   }
 </style>

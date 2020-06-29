@@ -33,6 +33,9 @@ export default {
   name: 'activity',
   props: ['value'],
   methods: {
+    getImage(activity) {
+      return shared.getImage(activity);
+    },
     openModal(activity) {
       this.$emit('openModal', activity);
     },
@@ -40,15 +43,11 @@ export default {
   data() {
     return {
       settings: [],
-      getImage: null,
     };
   },
   created() {
     // Get settings from store
     this.settings = this.$store.getters.getSettings;
-
-    // Get method from shared
-    this.getImage = shared.getImage;
   },
 };
 </script>
