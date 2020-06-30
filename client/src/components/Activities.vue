@@ -30,7 +30,7 @@
         <span class="vertical-line"></span>
         <div v-for="activity in activities" :key="activity.id">
           <activity :value="activity"
-                    @openModal="toggleModal($event)"></activity>
+                    @openModal="openModal($event)"></activity>
         </div>
       </div>
 
@@ -99,11 +99,12 @@ export default {
     getImage(activity) {
       return shared.getImage(activity);
     },
-    toggleModal(activity) {
+    openModal(activity) {
       this.showModal = !this.showModal;
-      // named route
-      this.$router.push({ path: `/home/${activity.id}` });
-      // this.currentActivity = activity;
+      const path = `/home/${activity.id}`;
+      if (this.$route.path !== path) {
+        this.$router.push({ path });
+      }
     },
     loadMore() {
       this.page += 1;

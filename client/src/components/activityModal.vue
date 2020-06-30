@@ -1,9 +1,9 @@
 <template>
-  <b-modal hide-footer hide-header>
+  <b-modal v-model="showModal" hide-footer hide-header>
     <template v-slot:default="{ hide }">
       <div class="modal-wrapper">
         <div class="custom-header">
-          <button @click="toggleModal(null)" class="close-btn">
+          <button @click="closeModal()" class="close-btn">
             <img src="../assets/x.svg" class="close-img"/>
           </button>
         </div>
@@ -42,13 +42,21 @@ export default {
   name: 'activityModal',
   props: ['id'],
   methods: {
+    closeModal() {
+      const path = '/home/';
+      if (this.$route.path !== path) {
+        this.$router.push({ path });
+      }
+    },
     getImage(activity) {
       return shared.getImage(activity);
     },
   },
   data() {
     return {
+      settings: [],
       activity: null,
+      showModal: false,
     };
   },
   created() {
@@ -57,7 +65,11 @@ export default {
       .then((response) => {
         const activities = lodash.get(response, 'data', []);
         this.activity = lodash.find(activities, activity => this.id === activity.id);
+        this.showModal = true;
       });
+
+    // Get settings from store
+    this.settings = this.$store.getters.getSettings;
   },
 };
 </script>
