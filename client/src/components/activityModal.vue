@@ -43,6 +43,7 @@ export default {
   props: ['id'],
   methods: {
     closeModal() {
+      this.showModal = false;
       const path = '/home/';
       if (this.$route.path !== path) {
         this.$router.push({ path });
