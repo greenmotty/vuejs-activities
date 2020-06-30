@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import activityModal from '../components/activityModal.vue';
+import activityModal from '../components/ActivityModal.vue';
 
 Vue.use(VueRouter);
 
