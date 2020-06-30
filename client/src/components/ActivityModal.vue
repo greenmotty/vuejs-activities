@@ -1,6 +1,6 @@
 <template>
   <b-modal v-model="showModal" hide-footer hide-header>
-    <template v-slot:default="{ hide }">
+    <template>
       <div class="modal-wrapper">
         <div class="custom-header">
           <button @click="closeModal()" class="close-btn">
