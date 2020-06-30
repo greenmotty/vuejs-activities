@@ -247,7 +247,7 @@ export default {
         content: "";
         width: 1px;
         background: gray;
-        height: calc(100% - 16px);
+        height: 100%;
         position: absolute;
         left: 44px;
         top: 0;
