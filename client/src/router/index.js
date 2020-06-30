@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
+import Home from '../components/Timeline.vue';
 import activityModal from '../components/ActivityModal.vue';
 
 Vue.use(VueRouter);
@@ -8,10 +8,10 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    redirect: '/home',
+    redirect: '/activities',
   },
   {
-    path: '/home',
+    path: '/activities',
     component: Home,
     children: [
       {

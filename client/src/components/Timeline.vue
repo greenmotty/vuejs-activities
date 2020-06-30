@@ -6,10 +6,10 @@
 
 <script>
 // @ is an alias to /src
-import Activities from '../components/Activities.vue';
+import Activities from './Activities.vue';
 
 export default {
-  name: 'home',
+  name: 'activities',
   components: {
     Activities,
   },

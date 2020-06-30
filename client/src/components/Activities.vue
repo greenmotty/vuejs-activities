@@ -101,7 +101,7 @@ export default {
     },
     openModal(activity) {
       this.showModal = !this.showModal;
-      const path = `/home/${activity.id}`;
+      const path = `/activities/${activity.id}`;
       if (this.$route.path !== path) {
         this.$router.push({ path });
       }

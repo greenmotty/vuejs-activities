@@ -44,7 +44,7 @@ export default {
   methods: {
     closeModal() {
       this.showModal = false;
-      const path = '/home/';
+      const path = '/activities/';
       if (this.$route.path !== path) {
         this.$router.push({ path });
       }
