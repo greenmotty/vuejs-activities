@@ -29,8 +29,11 @@
         <span class="month">{{month}}</span>
         <span class="vertical-line"></span>
         <div v-for="activity in activities" :key="activity.id">
-          <activity :value="activity"
-                    @openModal="openModal($event)"></activity>
+          <activity v-if="!activity.hide"
+                    :value="activity"
+                    @openModal="openModal($event)"
+                    @hideActivity="hideActivity(month, $event)"
+          ></activity>
         </div>
       </div>
 
@@ -98,6 +101,14 @@ export default {
   methods: {
     getImage(activity) {
       return shared.getImage(activity);
+    },
+    hideActivity(month, activity) {
+      const index = lodash.findIndex(this.cloneActivity[month],
+        act => act.id === activity.id);
+      if (index > -1) {
+        this.activities[month].splice(index, 1);
+        this.cloneActivity = Object.assign({}, this.activities);
+      }
     },
     openModal(activity) {
       this.showModal = !this.showModal;

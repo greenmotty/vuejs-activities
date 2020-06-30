@@ -23,6 +23,10 @@
         <span class="zoom-data" v-if="settings[value.resource_type].zoom"
               @click="openModal(value)">👁 View work</span>
       </div>
+      <div class="activity-zoom">
+      <span class="zoom-data"
+            @click="hideActivity(value)">Hide</span>
+      </div>
     </span>
   </span>
 </template>
@@ -39,6 +43,9 @@ export default {
     openModal(activity) {
       this.$emit('openModal', activity);
     },
+    hideActivity(activity) {
+      this.$emit('hideActivity', activity);
+    },
   },
   data() {
     return {
@@ -54,6 +61,9 @@ export default {
 
 <style scoped lang="scss">
   @import "../styles/common";
+  $zoomWidth: 150px;
+  $scoreWidth: 50px;
+  $hideWidth: 50px;
 
   .activity {
     display: flex;
@@ -69,7 +79,7 @@ export default {
 
     .activity-type {
       padding: 25px;
-      width: calc(100% - #{$scoreWidth} - #{$zoomWidth});
+      width: calc(100% - #{$scoreWidth} - #{$zoomWidth} - #{$hideWidth});
       display: flex;
       align-items: center;
 
